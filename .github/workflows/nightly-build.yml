@@ -148,10 +148,14 @@ jobs:
             # Backend Smoke Test
             BACKEND_URL="http://localhost:8800/api"
             echo "Testing backend at $BACKEND_URL"
-            if curl -s -o /dev/null -I -w "%{http_code}" $BACKEND_URL | grep -q "200"; then
-              echo "✅ Smoke test for backend executed successfully!"
+            
+            RESPONSE=$(curl -s $BACKEND_URL) 
+            
+            if echo "$RESPONSE" | grep -q "Hello World from the backend!!!"; then
+              echo "✅ Backend is running and returned expected response!"
             else
-              echo "❌ Smoke test for backend failed!"
+              echo "❌ Backend test failed! Response did not match expected output."
+              echo "Response received: $RESPONSE"
               exit 1
             fi
           EOF
