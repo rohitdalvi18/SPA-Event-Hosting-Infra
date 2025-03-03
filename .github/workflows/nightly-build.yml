@@ -26,9 +26,6 @@ jobs:
           path: source-repo
       - run: echo "✅ Source repo cloned successfully."
 
-      - name: 🛠️ Repository Structure
-        run: ls -R
-    
   build-and-save:
     runs-on: ubuntu-latest
     steps:
@@ -37,7 +34,7 @@ jobs:
 
       - name: 🔨 Build Docker Images
         run: |
-          cd spa-project/backend
+          cd source-repo/backend
           docker build -t backend-app:latest .
           cd ../frontend
           docker build -t frontend-app:latest .
