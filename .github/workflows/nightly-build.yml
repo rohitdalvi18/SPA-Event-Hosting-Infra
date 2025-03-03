@@ -181,14 +181,14 @@ jobs:
       - name: 📤 Push Docker Images to ECR
         run: |
           echo "Pushing frontend images to ECR..."
-          # docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:$TIMESTAMP
+          docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:$TIMESTAMP
           docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:latest
 
           echo "Pushing backend images to ECR..."
-          # docker push ${{ secrets.AWS_ECR_REPO_BACKEND }}:$TIMESTAMP
+          docker push ${{ secrets.AWS_ECR_REPO_BACKEND }}:$TIMESTAMP
           docker push ${{ secrets.AWS_ECR_REPO_BACKEND }}:latest
           
-          "✅ Docker images pushed to ECR successfully."
+          echo "✅ Docker images pushed to ECR successfully."
 
       - name: 🚀 Deploy to QA EC2
         run: |
