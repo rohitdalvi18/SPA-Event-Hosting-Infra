@@ -61,7 +61,7 @@ jobs:
             --image-id ${{ secrets.AWS_AMI_ID }} \
              --count 1 \
             --instance-type t2.micro \
-            --key-name DEVOPS \
+            --key-name keypair \
             --security-group-ids ${{ secrets.AWS_SECURITY_GROUP }} \
             --subnet-id ${{ secrets.AWS_SUBNET_ID }} \
             --query 'Instances[0].InstanceId' \
