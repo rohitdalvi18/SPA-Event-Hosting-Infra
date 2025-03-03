@@ -232,7 +232,7 @@ jobs:
           
             echo "Checking for docker-compose.qa.yml..."
             if [ ! -f docker-compose.qa.yml ]; then
-              cp /home/ec2-user/infra-repo/docker-compose.prod.yml /home/ec2-user/docker-compose.qa.yml
+              cp /home/ec2-user/infra-repo/deployment/docker-compose.prod.yml /home/ec2-user/deployment/docker-compose.qa.yml
             fi
 
             docker-compose -f docker-compose.qa.yml up -d
