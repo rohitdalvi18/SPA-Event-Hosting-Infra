@@ -126,7 +126,7 @@ jobs:
 
       - name: 🚀 Run Smoke Tests on EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/key.pem/keypair ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/keypair.pem ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
             echo "Running smoke tests..."
 
             FRONTEND_URL="http://localhost:5173"
