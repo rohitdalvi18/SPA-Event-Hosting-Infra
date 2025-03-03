@@ -82,7 +82,7 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/keypair.pem
-          chmod 400 ~/.ssh/keypair.pem
+          chmod 600 ~/.ssh/keypair.pem
 
       - name: 📤 Transfer Docker Images to EC2
         run: |
