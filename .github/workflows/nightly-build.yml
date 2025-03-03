@@ -146,7 +146,7 @@ jobs:
             fi
 
             # Backend Smoke Test
-            BACKEND_URL="http://localhost:8800/"
+            BACKEND_URL="http://localhost:8800/api"
             echo "Testing backend at $BACKEND_URL"
             if curl -s -o /dev/null -I -w "%{http_code}" $BACKEND_URL | grep -q "200"; then
               echo "✅ Smoke test for backend executed successfully!"
