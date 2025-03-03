@@ -154,6 +154,8 @@ jobs:
       - name: 🔑 Log into AWS ECR
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPO_FRONTEND }}
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPO_BACKEND }}
+
           echo "✅ Logged into AWS ECR."
 
       - name: 🏷️ Tag & Push Docker Images to ECR
