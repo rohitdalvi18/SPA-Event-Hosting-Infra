@@ -81,8 +81,8 @@ jobs:
       - name: Set up SSH private key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/my-key.pem
-          chmod 600 ~/.ssh/my-key.pem
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/keypair.pem
+          chmod 400 ~/.ssh/keypair.pem
 
       - name: 🛠️ Set Up Temporary EC2 Environment
         run: |
@@ -96,9 +96,9 @@ jobs:
 
       - name: 📤 Transfer Docker Images to EC2
         run: |
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/my-key.pem backend-app.tar ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/my-key.pem frontend-app.tar ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/my-key.pem infra-repo/docker-compose.prod.yml ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/keypair.pem backend-app.tar ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/keypair.pem frontend-app.tar ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/keypair.pem infra-repo/docker-compose.prod.yml ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
 
           echo "✅ Docker images transferred to EC2."
 
