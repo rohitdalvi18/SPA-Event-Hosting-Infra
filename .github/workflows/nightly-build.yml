@@ -192,7 +192,7 @@ jobs:
 
       - name: 🚀 Deploy to QA EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/my-key.pem ec2-user@${{ secrets.QA_EC2_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/keypair.pem ec2-user@${{ secrets.QA_EC2_IP }} << 'EOF'
             sudo yum update -y
             sudo yum install -y docker
             sudo service docker start
@@ -209,16 +209,17 @@ jobs:
             export AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
       
             echo "Logging in to AWS ECR..."
-            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 793261838120.dkr.ecr.us-east-1.amazonaws.com
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPO_FRONTEND }}
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPO_BACKEND }}
       
             export AWS_ECR_REPO=${{ secrets.AWS_ECR_REPO_BACKEND }}
-            echo "ECR Repo URL: $AWS_ECR_REPO"
+            echo "ECR Repo URL: $AWS_ECR_REPO_BACKEND"
 
             export AWS_ECR_REPO=${{ secrets.AWS_ECR_REPO_BACKEND }}
-            echo "ECR Repo URL: $AWS_ECR_REPO"
+            echo "ECR Repo URL: $AWS_ECR_REPO_BACKEND"
 
-            docker pull $AWS_ECR_REPO:backend-latest
-            docker pull $AWS_ECR_REPO:frontend-latest
+            docker pull $AWS_ECR_REPO:latest
+            docker pull $AWS_ECR_REPO:latest
           
             export RDS_HOST=${{ secrets.RDS_HOST }}
             export RDS_USER=${{ secrets.RDS_USER }}
@@ -226,6 +227,8 @@ jobs:
             export RDS_NAME=${{ secrets.RDS_NAME }}
             export RDS_PORT=${{ secrets.RDS_PORT }}
             export FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+
+            echo "Frontend URL: $FRONTEND_URL"
           
             echo "Checking for docker-compose.qa.yml..."
             if [ ! -f docker-compose.qa.yml ]; then
