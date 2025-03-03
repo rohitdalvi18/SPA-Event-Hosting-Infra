@@ -27,11 +27,8 @@ jobs:
           path: source-repo
       - run: echo "✅ Source repo cloned successfully."
 
-      - name: 🛠️ Verify Directory Structure Before Build
-        run: ls -lah source-repo/
-
-      - name: 🛠️ Verify Directory Structure Before Build
-        run: ls -lah source-repo/
+      # - name: 🛠️ Verify Directory Structure Before Build
+      #   run: ls -lah source-repo/
 
       - name: 🚀 Setting Up Docker Build Environment
         uses: docker/setup-buildx-action@v2
@@ -62,10 +59,11 @@ jobs:
         run: |
           INSTANCE_ID=$(aws ec2 run-instances \
             --image-id ${{ secrets.AWS_AMI_ID }} \
+             --count 1 \
             --instance-type t2.micro \
-            --key-name keypair \
+            --key-name DEVOPS \
             --security-group-ids ${{ secrets.AWS_SECURITY_GROUP }} \
-            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=TempTestEC2}]' \
+            --subnet-id subnet-08ebcce9df6929f68 \
             --query 'Instances[0].InstanceId' \
             --output text)
           echo "🆕 Temporary EC2 Created: $INSTANCE_ID"
