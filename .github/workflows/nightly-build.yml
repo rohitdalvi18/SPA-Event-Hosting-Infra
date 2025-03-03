@@ -88,13 +88,13 @@ jobs:
         run: |
           scp -o StrictHostKeyChecking=no -i ~/.ssh/keypair.pem backend-app.tar ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
           scp -o StrictHostKeyChecking=no -i ~/.ssh/keypair.pem frontend-app.tar ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/keypair.pem infra-repo/docker-compose.prod.yml ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/keypair.pem infra-repo/deployment/docker-compose.prod.yml ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
 
           echo "✅ Docker images transferred to EC2."
 
       - name: 🔑 SSH into EC2 and set up environment variables
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/my-key.pem ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/keypair.pem ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
             echo "RDS_HOST=${{ secrets.RDS_HOST }}" >> /home/ec2-user/.env
             echo "RDS_USER=${{ secrets.RDS_USER }}" >> /home/ec2-user/.env
             echo "RDS_PASSWORD=${{ secrets.RDS_PASSWORD }}" >> /home/ec2-user/.env
@@ -118,7 +118,7 @@ jobs:
 
       - name: 🛸 Start containers with docker-compose
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/my-key.pem ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/keypai.pem ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
             docker load -i /home/ec2-user/backend-app.tar
             docker load -i /home/ec2-user/frontend-app.tar
             docker-compose -f /home/ec2-user/docker-compose.prod.yml --env-file /home/ec2-user/.env up -d
@@ -126,7 +126,7 @@ jobs:
 
       - name: 🚀 Run Smoke Tests on EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/my-key.pem ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/key.pem/keypair ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
             echo "Running smoke tests..."
 
             FRONTEND_URL="http://localhost:5173"
@@ -160,8 +160,6 @@ jobs:
         run: |
           aws ec2 terminate-instances --instance-ids $INSTANCE_ID
           echo "✅ Temporary EC2 instance terminated."
-
-
 
       - name: 🔑 Log into AWS ECR
         run: |
