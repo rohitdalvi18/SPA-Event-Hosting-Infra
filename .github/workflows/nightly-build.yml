@@ -63,7 +63,7 @@ jobs:
             --instance-type t2.micro \
             --key-name DEVOPS \
             --security-group-ids ${{ secrets.AWS_SECURITY_GROUP }} \
-            --subnet-id subnet-08ebcce9df6929f68 \
+            --subnet-id ${{ secrets.AWS_SUBNET_ID }} \
             --query 'Instances[0].InstanceId' \
             --output text)
           echo "🆕 Temporary EC2 Created: $INSTANCE_ID"
