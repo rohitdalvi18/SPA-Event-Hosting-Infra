@@ -149,7 +149,7 @@ jobs:
       - name: 🔥 Terminate Temporary EC2 Instance
         run: |
           aws ec2 terminate-instances --instance-ids $INSTANCE_ID
-          echo "✅ Temporary EC2 instance terminated."
+          echo "✅ Temporary EC2 instance terminated INSTANCE_ID=$INSTANCE_ID"
 
       - name: 🔑 Log into AWS ECR
         run: |
@@ -165,10 +165,10 @@ jobs:
           docker images
 
           # docker tag backend-app:latest ${{ secrets.AWS_ECR_REPO_BACKEND }}:backend-$TIMESTAMP
-          docker tag backend-app:latest ${{ secrets.AWS_ECR_REPO_BACKEND }}:backend:latest
+          docker tag backend-app:latest ${{ secrets.AWS_ECR_REPO_BACKEND }}:latest
 
           # docker tag frontend-app:latest ${{ secrets.AWS_ECR_REPO_FRONTEND }}:frontend-$TIMESTAMP
-          docker tag frontend-app:latest ${{ secrets.AWS_ECR_REPO_FRONTEND }}:frontend:latest
+          docker tag frontend-app:latest ${{ secrets.AWS_ECR_REPO_FRONTEND }}:latest
 
           echo "✅ Docker images tagged successfully!"
       
@@ -181,12 +181,12 @@ jobs:
       - name: 📤 Push Docker Images to ECR
         run: |
           echo "Pushing frontend images to ECR..."
-          # docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:frontend-$TIMESTAMP
-          docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:frontend-latest
+          # docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:$TIMESTAMP
+          docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:latest
 
           echo "Pushing backend images to ECR..."
-          # docker push ${{ secrets.AWS_ECR_REPO_BACKEND }}:backend-$TIMESTAMP
-          docker push ${{ secrets.AWS_ECR_REPO_BACKEND }}:backend-latest
+          # docker push ${{ secrets.AWS_ECR_REPO_BACKEND }}:$TIMESTAMP
+          docker push ${{ secrets.AWS_ECR_REPO_BACKEND }}:latest
           
           "✅ Docker images pushed to ECR successfully."
 
