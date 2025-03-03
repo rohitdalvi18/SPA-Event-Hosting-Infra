@@ -7,13 +7,13 @@ services:
     ports:
       - "8800:8800"
     env_file:
-      - /home/ec2-user/spa-project/backend/.env
+      - /home/ec2-user/.env
 
   frontend:
     container_name: frontend
     image: frontend-app:latest
     env_file:
-      - /home/ec2-user/spa-project/frontend/.env
+      - /home/ec2-user/.env
     ports:
       - "5173:5173"
     depends_on:
