@@ -158,23 +158,35 @@ jobs:
 
           echo "✅ Logged into AWS ECR."
 
-      - name: 🏷️ Tag & Push Docker Images to ECR
+      - name: 🏷️ Tag Docker Images
         run: |
           TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
           docker images
 
           # docker tag backend-app:latest ${{ secrets.AWS_ECR_REPO_BACKEND }}:backend-$TIMESTAMP
-          docker tag backend-app:latest ${{ secrets.AWS_ECR_REPO_BACKEND }}:latest
+          docker tag backend-app:latest ${{ secrets.AWS_ECR_REPO_BACKEND }}:backend:latest
 
           # docker tag frontend-app:latest ${{ secrets.AWS_ECR_REPO_FRONTEND }}:frontend-$TIMESTAMP
-          docker tag frontend-app:latest ${{ secrets.AWS_ECR_REPO_FRONTEND }}:latest
+          docker tag frontend-app:latest ${{ secrets.AWS_ECR_REPO_FRONTEND }}:frontend:latest
 
-          # docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:backend-$TIMESTAMP
-          docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:backend-latest
+          echo "✅ Docker images tagged successfully!"
+      
+      - name: 🔍 Verify Tagged Images Before Pushing
+        run: |
+          echo "Verifying docker images..."
+          docker images | grep ${{ secrets.AWS_ECR_REPO_BACKEND }}
+          docker images | grep ${{ secrets.AWS_ECR_REPO_FRONTEND }}
 
+      - name: 📤 Push Docker Images to ECR
+        run: |
+          echo "Pushing frontend images to ECR..."
           # docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:frontend-$TIMESTAMP
           docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:frontend-latest
+
+          echo "Pushing backend images to ECR..."
+          # docker push ${{ secrets.AWS_ECR_REPO_BACKEND }}:backend-$TIMESTAMP
+          docker push ${{ secrets.AWS_ECR_REPO_BACKEND }}:backend-latest
           
           "✅ Docker images pushed to ECR successfully."
 
