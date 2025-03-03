@@ -3,7 +3,7 @@ name: Nightly Deployment Routine
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 jobs:
@@ -26,9 +26,16 @@ jobs:
           path: source-repo
       - run: echo "✅ Source repo cloned successfully."
 
+      - name: 🛠️ Verify Directory Structure Before Build
+        run: ls -lah source-repo/
+
+
   build-and-save:
     runs-on: ubuntu-latest
     steps:
+      - name: 🛠️ Verify Directory Structure Before Build
+        run: ls -lah source-repo/
+
       - name: 🚀 Setting Up Docker Build Environment
         uses: docker/setup-buildx-action@v2
 
