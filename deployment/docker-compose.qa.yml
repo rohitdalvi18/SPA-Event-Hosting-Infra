@@ -2,7 +2,7 @@ version: "1"
 
 services:
   frontend:
-    image: ${AWS_ECR_REPO_FRONTEND}:frontend-latest
+    image: ${AWS_ECR_REPO_FRONTEND}:latest
     container_name: frontend
     depends_on:
       - backend
@@ -13,7 +13,7 @@ services:
 
 
   backend:
-    image: ${AWS_ECR_REPO_BACKEND}:backend-latest
+    image: ${AWS_ECR_REPO_BACKEND}:latest
     container_name: backend
     ports:
       - "8800:8800"
