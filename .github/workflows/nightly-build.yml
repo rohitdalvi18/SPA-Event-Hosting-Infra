@@ -162,16 +162,18 @@ jobs:
         run: |
           TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
-          docker tag backend-app:latest ${{ secrets.AWS_ECR_REPO_BACKEND }}:backend-$TIMESTAMP
-          docker tag backend-app:latest ${{ secrets.AWS_ECR_REPO_FRONTEND }}:backend-latest
+          docker images
 
-          docker tag frontend-app:latest ${{ secrets.AWS_ECR_REPO_FRONTEND }}:frontend-$TIMESTAMP
-          docker tag frontend-app:latest ${{ secrets.AWS_ECR_REPO_FRONTEND }}:frontend-latest
+          # docker tag backend-app:latest ${{ secrets.AWS_ECR_REPO_BACKEND }}:backend-$TIMESTAMP
+          docker tag backend-app:latest ${{ secrets.AWS_ECR_REPO_BACKEND }}:latest
 
-          docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:backend-$TIMESTAMP
+          # docker tag frontend-app:latest ${{ secrets.AWS_ECR_REPO_FRONTEND }}:frontend-$TIMESTAMP
+          docker tag frontend-app:latest ${{ secrets.AWS_ECR_REPO_FRONTEND }}:latest
+
+          # docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:backend-$TIMESTAMP
           docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:backend-latest
 
-          docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:frontend-$TIMESTAMP
+          # docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:frontend-$TIMESTAMP
           docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:frontend-latest
           
           "✅ Docker images pushed to ECR successfully."
