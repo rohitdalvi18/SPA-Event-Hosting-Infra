@@ -118,7 +118,7 @@ jobs:
 
       - name: 🛸 Start containers with docker-compose
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/keypai.pem ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/keypair.pem ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
             docker load -i /home/ec2-user/backend-app.tar
             docker load -i /home/ec2-user/frontend-app.tar
             docker-compose -f /home/ec2-user/docker-compose.prod.yml --env-file /home/ec2-user/.env up -d
