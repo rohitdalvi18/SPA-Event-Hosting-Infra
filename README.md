@@ -1,6 +1,6 @@
 # SPA-Event-Hosting-Infra
 
-This repository manages the infrastructure and CI/CD pipeline for deploying the SF Events Listing Single Page Application (SPA) on AWS. It automates nightly builds, smoke tests, and deployment to a QA environment using GitHub Actions, AWS EC2, ECR, RDS, and Nginx.
+This repository manages the infrastructure and CI/CD pipeline for deploying the [SF Events Listing](https://github.com/rohitdalvi18/SPA-Event-Hosting) Single Page Application (SPA) on AWS. It automates nightly builds, smoke tests, and deployment to a QA environment using GitHub Actions, AWS EC2, ECR, RDS, and Nginx.
 
 ## 🚀 Features
 - Nightly Deployment Workflow (Runs every night at 2 AM UTC)
