@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - dev
   workflow_dispatch:
 
 jobs:
@@ -17,7 +18,6 @@ jobs:
           repository: rohitdalvi18/SPA-Event-Hosting-Infra
           token: ${{ secrets.ACCESS_TOKEN }}
           path: infra-repo
-      - run: echo "✅ Successfully checked out Infra repo."
 
       - name: 📂 Checkout Source Code Repository
         uses: actions/checkout@v3
@@ -25,10 +25,9 @@ jobs:
           repository: rohitdalvi18/SPA-Event-Hosting
           token: ${{ secrets.ACCESS_TOKEN }}
           path: source-repo
-      - run: echo "✅ Source repo cloned successfully."
 
-      # - name: 🛠️ Verify Directory Structure Before Build
-      #   run: ls -lah source-repo/
+      - name: 🛠️ Verify Directory Structure Before Build
+        run: ls -lah source-repo/
 
       - name: 🚀 Setting Up Docker Build Environment
         uses: docker/setup-buildx-action@v2
@@ -39,13 +38,13 @@ jobs:
           docker build -t backend-app:latest .
           cd ../frontend
           docker build -t frontend-app:latest .
-      - run: echo "✅ Built both backend and frontend Docker images."
+          echo "✅ Built both backend and frontend Docker images."
 
       - name: 📦 Save Docker Images
         run: |
           docker save -o backend-app.tar backend-app:latest
           docker save -o frontend-app.tar frontend-app:latest
-      - run: echo "✅ Docker images saved as tar files."
+          echo "✅ Docker images saved as tar files."
 
       - name: 🔧 Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -84,6 +83,15 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/keypair.pem
           chmod 600 ~/.ssh/keypair.pem
 
+      - name: Wait for EC2 instance to be ready
+        run: |
+          aws ec2 wait instance-running --instance-ids $INSTANCE_ID
+          PUBLIC_IP=$(aws ec2 describe-instances \
+            --instance-ids $INSTANCE_ID \
+            --query 'Reservations[0].Instances[0].PublicIpAddress' \
+            --output text)
+          echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
+
       - name: 📤 Transfer Docker Images to EC2
         run: |
           scp -o StrictHostKeyChecking=no -i ~/.ssh/keypair.pem backend-app.tar ec2-user@${{ env.PUBLIC_IP }}:/home/ec2-user/
@@ -116,7 +124,7 @@ jobs:
           EOF
           echo "✅ EC2 environment configured successfully."
 
-      - name: 🛸 Start containers with docker-compose
+      - name: 🛸 Start containers with docker compose
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/keypair.pem ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
             docker load -i /home/ec2-user/backend-app.tar
@@ -128,12 +136,12 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/keypair.pem ec2-user@${{ env.PUBLIC_IP }} << 'EOF'
             echo "Running smoke tests..."
-
+            
             FRONTEND_URL="http://localhost:5173"
             for i in {1..10}; do
               RESPONSE=$(curl -s $FRONTEND_URL)
               if echo "$RESPONSE" | grep -q "<title>SF Events Listing</title>"; then
-                echo "✅ Smoke test executed successfully!"
+                echo "✅ Smoke tests executed successfully!"
                 break
               fi
               echo "Retrying in 1 second..."
@@ -141,12 +149,13 @@ jobs:
             done
 
             if ! echo "$RESPONSE" | grep -q "<title>SF Events Listing</title>"; then
-              echo "❌ Smoke test failed!"
+              echo "❌ Smoke tests failed!"
               exit 1
             fi
           EOF
 
       - name: 🔥 Terminate Temporary EC2 Instance
+        if: always()
         run: |
           aws ec2 terminate-instances --instance-ids $INSTANCE_ID
           echo "✅ Temporary EC2 instance terminated INSTANCE_ID=$INSTANCE_ID"
@@ -161,13 +170,16 @@ jobs:
       - name: 🏷️ Tag Docker Images
         run: |
           TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
 
           docker images
 
-          # docker tag backend-app:latest ${{ secrets.AWS_ECR_REPO_BACKEND }}:backend-$TIMESTAMP
+          echo "Tagging backend and frontend images..."
+
+          docker tag backend-app:latest ${{ secrets.AWS_ECR_REPO_BACKEND }}:$TIMESTAMP
           docker tag backend-app:latest ${{ secrets.AWS_ECR_REPO_BACKEND }}:latest
 
-          # docker tag frontend-app:latest ${{ secrets.AWS_ECR_REPO_FRONTEND }}:frontend-$TIMESTAMP
+          docker tag frontend-app:latest ${{ secrets.AWS_ECR_REPO_FRONTEND }}:$TIMESTAMP
           docker tag frontend-app:latest ${{ secrets.AWS_ECR_REPO_FRONTEND }}:latest
 
           echo "✅ Docker images tagged successfully!"
@@ -181,14 +193,16 @@ jobs:
       - name: 📤 Push Docker Images to ECR
         run: |
           echo "Pushing frontend images to ECR..."
-          # docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:$TIMESTAMP
+          docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:$TIMESTAMP
           docker push ${{ secrets.AWS_ECR_REPO_FRONTEND }}:latest
 
+          echo "✅ Docker images for frontend pushed to ECR successfully."
+
           echo "Pushing backend images to ECR..."
-          # docker push ${{ secrets.AWS_ECR_REPO_BACKEND }}:$TIMESTAMP
+          docker push ${{ secrets.AWS_ECR_REPO_BACKEND }}:$TIMESTAMP
           docker push ${{ secrets.AWS_ECR_REPO_BACKEND }}:latest
           
-          echo "✅ Docker images pushed to ECR successfully."
+          echo "✅ Docker images for backend pushed to ECR successfully."
 
       - name: 🚀 Deploy to QA EC2
         run: |
@@ -212,14 +226,14 @@ jobs:
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPO_FRONTEND }}
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPO_BACKEND }}
       
-            export AWS_ECR_REPO=${{ secrets.AWS_ECR_REPO_BACKEND }}
-            echo "ECR Repo URL: $AWS_ECR_REPO_BACKEND"
+            export AWS_ECR_REPO_FRONTEND=${{ secrets.AWS_ECR_REPO_FRONTEND }}
+            echo "ECR Frontend Repo URL: $AWS_ECR_REPO_FRONTEND"
 
-            export AWS_ECR_REPO=${{ secrets.AWS_ECR_REPO_BACKEND }}
-            echo "ECR Repo URL: $AWS_ECR_REPO_BACKEND"
+            export AWS_ECR_REPO_BACKEND=${{ secrets.AWS_ECR_REPO_BACKEND }}
+            echo "ECR Backend Repo URL: $AWS_ECR_REPO_BACKEND"
 
-            docker pull $AWS_ECR_REPO:latest
-            docker pull $AWS_ECR_REPO:latest
+            docker pull $AWS_ECR_REPO_FRONTEND:latest
+            docker pull $AWS_ECR_REPO_BACKEND:latest
           
             export RDS_HOST=${{ secrets.RDS_HOST }}
             export RDS_USER=${{ secrets.RDS_USER }}
@@ -237,5 +251,5 @@ jobs:
 
             docker-compose -f docker-compose.qa.yml up -d
 
-            echo "Deployment to QA EC2 successful!"
+            echo "✅ Deployment to QA EC2 successful!"
           EOF
